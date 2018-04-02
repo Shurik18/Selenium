@@ -1,0 +1,111 @@
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.Chrome;
+using System.Collections.Generic;
+using System.Collections;
+using System.Runtime.Serialization;
+
+namespace csharpproject1
+{
+    public class SortExcection1 : ApplicationException
+    {
+        public SortExcection1() { }
+        public SortExcection1(string message) : base(message) { }
+        public SortExcection1(string messga, SortExcection1 inner) : base(messga, inner) { }
+        protected SortExcection1(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+    }
+    [TestFixture]
+    public class UnitTest8
+    {
+        private IWebDriver driver;
+        private WebDriverWait wait;
+        IList<IWebElement> listloc;     // Содержит колличество строки для стран
+        IList<IWebElement> listzones;   // Содержит колличество  для зон
+        List<string> contentZones;      // Содержит список зон
+        List<string> content;           // Содержит список стран      
+        private string con;             // Колличество стран
+        private string conzone;         // Колличество зон
+        int result;                    // Результат сравнения элементов массива
+
+
+        [SetUp]
+        public void Start()
+        {
+            driver = new ChromeDriver();
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            content = new List<string>();
+            contentZones = new List<string>();
+
+        }
+
+        [Test]
+        public void countries1()
+        {
+            driver.Url = "http://localhost/litecart/admin/";
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Submit();
+            wait.Until(ExpectedConditions.ElementExists(By.XPath("//a[@href='http://localhost/litecart/admin/?app=countries&doc=countries']"))).Click();
+            listloc = driver.FindElements(By.XPath("//form[@name='countries_form']//tbody//tr"));
+            int countlist = listloc.Count;
+            // Получаем список стран
+            for (int i = 0; i < countlist; i++)
+            {
+                con = listloc[i].FindElement(By.XPath(".//a")).Text;
+                content.Add(con);
+            }
+            //Сравниваем элементы массивов     
+            for (int j = 0; j < countlist - 1; j++)
+            {
+                result = String.Compare(content[j + 1], content[j]);
+                if (result != 1)
+                    throw new SortExcection1("Invalid Sorting");
+            }
+            //Перебираем значения зон
+            for (int k = 0; k < countlist; k++)
+            {
+                listloc = driver.FindElements(By.XPath("//form[@name='countries_form']//tbody//tr"));
+                string s = listloc[k].FindElement(By.XPath(".//td[@class='text-center']")).GetAttribute("textContent");
+                int f = int.Parse(s);
+                //Если значение зоны больше нуля - кликаем по ссылке
+                if (f > 0)
+                {
+
+                    listloc[k].FindElement(By.XPath(".//a")).Click();
+                    //Находим колличество зон
+                    listzones = driver.FindElements(By.XPath("//table[@class='table table-striped data-table']/tbody/tr"));
+                    int countzones = listzones.Count;
+                    //Извлекаем текст каждой зоны и добавляем его в массив
+                    for (int l = 0; l < countzones; l++)
+                    {
+                        conzone = listzones[l].FindElement(By.XPath(".//input[contains(@name, '[name]')]")).GetAttribute("value");
+                        contentZones.Add(conzone);
+                    }
+                    //Сравниваем элементы массивов
+                    for (int n = 0; n < countzones - 1; n++)
+                    {
+                        result = String.Compare(contentZones[n + 1], contentZones[n]);
+                        if (result != 1)
+                            throw new SortExcection1("Invalid Sorting");
+                    }
+                    //Удаляем списки зон
+                    contentZones.Clear();
+                    //Возвращаемя к странице стран
+                    driver.FindElement(By.XPath("//a[@href='http://localhost/litecart/admin/?app=countries&doc=countries']")).Click();
+
+                }
+            }
+        }
+        [TearDown]
+        public void Stop()
+        {
+            driver.Quit();
+            driver = null;
+
+        }
+    }
+}
