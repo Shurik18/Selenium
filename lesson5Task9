@@ -1,3 +1,7 @@
+/*Занятие 5 задание 9
+ а)проверить, что страны расположены в алфавитном порядке
+ б) для тех стран, у которых количество зон отлично от нуля - открыть страницу и там проверить, что зоны расположены в алфавитном порядке
+ */
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
@@ -26,11 +30,13 @@ namespace csharpproject1
         IList<IWebElement> listloc;     // Содержит колличество строки для стран
         IList<IWebElement> listzones;   // Содержит колличество  для зон
         List<string> contentZones;      // Содержит список зон
-        List<string> content;           // Содержит список стран      
+        List<string> content;           // Содержит список стран
+        List<string> contentSort;       // Список стран после сортировки        
+        List<string> contentZoneSort;   // Список зон после сортировки
         private string con;             // Колличество стран
         private string conzone;         // Колличество зон
-        int result;                    // Результат сравнения элементов массива
-
+        int result;                    // Результат сравнения сортированного списка стран с несортированным
+        bool resultzones;               // Результат сравнения сортированного списка зон с несортированным
 
         [SetUp]
         public void Start()
@@ -57,11 +63,11 @@ namespace csharpproject1
             {
                 con = listloc[i].FindElement(By.XPath(".//a")).Text;
                 content.Add(con);
-            }
+            }        
             //Сравниваем элементы массивов     
-            for (int j = 0; j < countlist - 1; j++)
+            for (int j = 0;  j < countlist - 1; j++)
             {
-                result = String.Compare(content[j + 1], content[j]);
+                result = String.Compare(content[j+1], content[j]);
                 if (result != 1)
                     throw new SortExcection1("Invalid Sorting");
             }
@@ -84,16 +90,16 @@ namespace csharpproject1
                     {
                         conzone = listzones[l].FindElement(By.XPath(".//input[contains(@name, '[name]')]")).GetAttribute("value");
                         contentZones.Add(conzone);
-                    }
+                    }       
                     //Сравниваем элементы массивов
                     for (int n = 0; n < countzones - 1; n++)
-                    {
+                    {        
                         result = String.Compare(contentZones[n + 1], contentZones[n]);
                         if (result != 1)
                             throw new SortExcection1("Invalid Sorting");
                     }
                     //Удаляем списки зон
-                    contentZones.Clear();
+                    contentZones.Clear(); 
                     //Возвращаемя к странице стран
                     driver.FindElement(By.XPath("//a[@href='http://localhost/litecart/admin/?app=countries&doc=countries']")).Click();
 
