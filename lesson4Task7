@@ -1,0 +1,76 @@
+/* Занятие 4 задание 7
+ 1)Входит в панель администратора
+ 2)Прокликивает последовательно все пункты меню слева, включая вложенные пункты
+ 3)Для каждой страницы проверяет наличие заголовка(то есть элемента с тегом h1)
+ */
+
+
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using System.Collections.Generic;
+
+namespace csharpproject
+{
+    [TestFixture]
+    public class UnitTest5
+    {
+        private IWebDriver driver;
+        private WebDriverWait wait;
+        public IWebElement menu; //блок содержащий пункты меню
+        IList<IWebElement> list;//используется для хранения списков меню и подменю
+        public int smapp; // размер списка меню
+        public int smdocs;// размер списка подменю
+        
+
+        [SetUp]
+        public void TestMethod1()
+        {
+            driver = new ChromeDriver();
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+
+        }
+
+        [Test]
+        public void TestForMenu()
+        {
+            driver.Url = "http://localhost/litecart/admin/";
+            driver.FindElement(By.XPath("//input[@name='username']")).SendKeys("admin");
+            driver.FindElement(By.XPath("//input[@name='password']")).SendKeys("admin");
+            driver.FindElement(By.XPath("//button[@name='login']")).Click();
+            menu = wait.Until(ExpectedConditions.ElementExists(By.XPath("//ul[@id='box-apps-menu']"))); //Находим список содержащий пункты меню
+            list = menu.FindElements(By.XPath("//ul[@id='box-apps-menu']//li[@id='app-']")); //Создаем список пукнктов меню 
+            smapp = list.Count; // Получаем его размер и создаем цикл
+            for (int i = 0; i < smapp; i++)
+            {  // В цикле повторяем формирование списка пунктов меню              
+                list = driver.FindElements(By.XPath("//ul[@id='box-apps-menu']//li[@id='app-']"));
+                smapp = list.Count;
+                list[i].Click();
+                driver.FindElement(By.CssSelector("main[id=main] h1")); // Находим заголовок
+                try //Перебираем подпункты, на случай если не находит подпункты отлавливаю исключение
+                {                   
+                    list = driver.FindElements(By.XPath("//ul[@class='docs']//li"));
+                    smdocs = list.Count;
+                    for (int j = 0; j < smdocs; j++)
+                    {                       
+                        list = driver.FindElements(By.XPath("//ul[@class='docs']//li"));
+                        list[j].Click();
+                        driver.FindElement(By.CssSelector("main[id=main] h1"));
+
+                    }
+                } catch (NoSuchElementException ex) { }
+               
+                
+           }
+        }
+        [TearDown]
+        public void DontStop()
+        {
+            driver.Quit();
+            driver = null;
+        }
+    }
+}
