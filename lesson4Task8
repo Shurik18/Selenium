@@ -1,0 +1,81 @@
+/*Заняте 4 задание 8
+ Сделайте сценарий, проеряющий наличие стикеров у всех товаров в учебном приложении litecart на главной странице.Стикеры - это полоски в левом верхнем углу изображения
+ товара, на ктором написано New или Sale или что-нибудь другое.Сценарий должен проверять, что у каждого товара имется ровно один стиер
+ */
+
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+
+namespace csharpproject
+{
+    public class StickersExpection : ApplicationException
+    {
+    public StickersExpection() { }
+    public StickersExpection(string message) : base(message) { }
+    public StickersExpection(string messga, StickersExpection inner) : base (messga, inner) { }
+    protected StickersExpection(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    }
+    [TestFixture]
+    public class UnitTest7
+    {
+        private IWebDriver driver;
+        private WebDriverWait wait;
+        IList<IWebElement> numtap1; //Содержит список вкладок
+        IList<IWebElement> numtap; // Список вклдок в цикле
+        IList<IWebElement> tabcont; // Блоки содержащие товары
+        IList<IWebElement> listprod;// Список товаров
+        IList<IWebElement> stickList;//Список стикеров
+        private int numprod;//количество товара
+        private int ntap;//количество вкладок
+        private int stick;//количество стикеров
+
+        [SetUp]
+        public void TestMethod2()
+        {
+            driver = new ChromeDriver();
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+        }
+        [Test]
+        public void FStickers2()
+        {
+            driver.Url = "http://localhost/litecart/en/";          
+            numtap1 = driver.FindElements(By.XPath("//ul[@class='nav nav-justified nav-tabs']//li"));//Создаем список вкладок
+            ntap = numtap1.Count; // Оперделяем их колличество
+            for (int i = 0; i < ntap; i++) // Цикл перебора вкладок
+            {
+                numtap = driver.FindElements(By.XPath("//ul[@class='nav nav-justified nav-tabs']//li"));
+                numtap[i].Click();
+                tabcont = driver.FindElements(By.XPath("//div[@class='tab-content']/div"));//блоки содержащие товары       
+                listprod = tabcont[i].FindElements(By.XPath(".//div[@class='products row half-gutter text-center']/div"));//список товаров во вкладке
+                numprod = listprod.Count; // колличество товаров
+
+                for (int k = 0; k < numprod; k++) // цикл перебора товаров во вкладке
+                    {
+                    stickList = listprod[i].FindElements(By.XPath(".//div[@class='sticker new' or @class='sticker sale']"));//найденые стикеры помещаем в список 
+                    stick = stickList.Count; // определяем размер списка
+                    if (stick != 1) // если размер списка 
+                    {   if(stick > 1)
+                        throw new StickersExpection("Lots of stickers");
+                    else throw new StickersExpection("Few Stickers");
+                    }
+                    }
+                
+
+            }
+
+        }
+        [TearDown]
+        public void Stop()
+        {
+            driver.Quit();
+            driver = null;
+        }
+    }
+}
+
