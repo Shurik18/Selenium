@@ -30,16 +30,15 @@ namespace csharpproject1
         IList<IWebElement> listloc;     // Содержит колличество строки для стран
         IList<IWebElement> listzones;   // Содержит колличество  для зон
         IList<IWebElement> listGZone;   // Cодержит колличество гео-зон
+        IList<IWebElement> cZone;
         List<string> contentZones;      // Содержит список зон
-        List<string> content;           // Содержит список стран
-        List<string> contentSort;       // Список стран после сортировки    
-        private IWebElement GZone;
-        private string con;             // Колличество стран
-        private string conzone;         // Колличество зон
-        private int geozone;            // Колличество гео-зон
+        List<string> content;           // Содержит список стран  
+        private string con;             // Наименование страны
+        private string conzone;         // Наименование зоны
+        private string geozone;          // Наименование геозоны
+        private int сgeozone;            // Колличество стран с гео-зонами
         int result;                    // Результат сравнения сортированного списка стран с несортированным
-        bool resultzones;               // Результат сравнения сортированного списка зон с несортированным
-
+     
         [SetUp]
         public void Start()
         {
@@ -59,7 +58,7 @@ namespace csharpproject1
             driver.FindElement(By.Name("password")).SendKeys("admin");
             driver.FindElement(By.Name("login")).Submit();
             wait.Until(ExpectedConditions.ElementExists(By.XPath("//a[@href='http://localhost/litecart/admin/?app=countries&doc=countries']"))).Click();
-            listloc = driver.FindElements(By.XPath("//form[@name='countries_form']//tbody//tr"));
+            listloc = driver.FindElements(By.XPath("//form[@name='countries_form']//tbody//tr")); //Помещаем в массив элементы содержащие наименования стран
             int countlist = listloc.Count;
             // Получаем список стран
             for (int i = 0; i < countlist; i++)
@@ -111,13 +110,19 @@ namespace csharpproject1
             driver.Url = "http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones";
             //Заполняем список зон
             listGZone = driver.FindElements(By.XPath("//table[@class='table table-striped data-table']/tbody/tr"));
-            geozone = listGZone.Count;
-            for (int i = 0; i < geozone; i++)
+            сgeozone = listGZone.Count;
+            for (int i = 0; i < сgeozone; i++)
             {
                 listGZone = driver.FindElements(By.XPath("//table[@class='table table-striped data-table']/tbody/tr"));
-                listGZone[i].FindElement(By.XPath(".//a[title='Edit']")).Click();
+                listGZone[i].FindElement(By.XPath(".//a[@title='Edit']")).Click();
                 //Заполняем список гео зон
-
+                cZone = driver.FindElements(By.XPath("//table[@ class='table table-striped data-table']//input[contains(@name, '[zone_code]')]"));//Помещаем в массив элементы содержащие наименования стран
+                //table[@ class='table table-striped data-table']/tbody//td[prceding-sibling::td[contains(@name, '[zone_code]')]]
+                int countZon = cZone.Count;
+                for (int j = 0; j < countZon; j++)
+                {
+                    geozone = cZone[j].GetAttribute("");
+                }
             }
         }
         [TearDown]
