@@ -32,7 +32,8 @@ namespace csharpproject1
         IList<IWebElement> listGZone;   // Cодержит колличество гео-зон
         IList<IWebElement> cZone;
         List<string> contentZones;      // Содержит список зон
-        List<string> content;           // Содержит список стран  
+        List<string> content;           // Содержит список стран 
+        List<string> listgeozone;           // Содержит список 
         private string con;             // Наименование страны
         private string conzone;         // Наименование зоны
         private string geozone;          // Наименование геозоны
@@ -46,7 +47,7 @@ namespace csharpproject1
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             content = new List<string>();
             contentZones = new List<string>();
-            
+            listgeozone = new List<string>();
 
         }
 
@@ -66,12 +67,12 @@ namespace csharpproject1
                 con = listloc[i].FindElement(By.XPath(".//a")).Text;
                 content.Add(con);
             }        
-            //Сравниваем элементы массивов     
+            //Сравниваем элементы массива    
             for (int j = 0;  j < countlist - 1; j++)
             {
                 result = String.Compare(content[j+1], content[j]);
                 if (result != 1)
-                    throw new SortExcection1("Invalid Sorting");
+                    throw new SortExcection1("Non-valid sorting of countries");
             }
             //Перебираем значения зон
             for (int k = 0; k < countlist; k++)
@@ -98,7 +99,7 @@ namespace csharpproject1
                     {        
                         result = String.Compare(contentZones[n + 1], contentZones[n]);
                         if (result != 1)
-                            throw new SortExcection1("Invalid Sorting");
+                            throw new SortExcection1("not valid sorting of zones");
                     }
                     //Удаляем списки зон
                     contentZones.Clear(); 
@@ -116,13 +117,24 @@ namespace csharpproject1
                 listGZone = driver.FindElements(By.XPath("//table[@class='table table-striped data-table']/tbody/tr"));
                 listGZone[i].FindElement(By.XPath(".//a[@title='Edit']")).Click();
                 //Заполняем список гео зон
-                cZone = driver.FindElements(By.XPath("//table[@ class='table table-striped data-table']//input[contains(@name, '[zone_code]')]"));//Помещаем в массив элементы содержащие наименования стран
+                cZone = driver.FindElements(By.XPath("//table[@ class='table table-striped data-table']/tbody//td[3]"));//Помещаем в массив элементы содержащие наименования стран
                 //table[@ class='table table-striped data-table']/tbody//td[prceding-sibling::td[contains(@name, '[zone_code]')]]
+                ////table[@ class='table table-striped data-table']//input[contains(@name, '[zone_code]')]
                 int countZon = cZone.Count;
                 for (int j = 0; j < countZon; j++)
                 {
-                    geozone = cZone[j].GetAttribute("");
+                    geozone = cZone[j].GetAttribute("textContent");
+                    listgeozone.Add(geozone);
                 }
+                //Проверяем сортировку списка
+                for (int k = 0; k < countZon - 1; k++)
+                {
+                    result = string.Compare(listgeozone[k + 1], listgeozone[k]);
+                    if (result != 1)
+                        throw new SortExcection1("Non-valid sorting of geozones");
+                }
+                driver.Url = "http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones";
+                listgeozone.Clear();
             }
         }
         [TearDown]
