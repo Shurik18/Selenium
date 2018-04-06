@@ -117,9 +117,7 @@ namespace csharpproject1
                 listGZone = driver.FindElements(By.XPath("//table[@class='table table-striped data-table']/tbody/tr"));
                 listGZone[i].FindElement(By.XPath(".//a[@title='Edit']")).Click();
                 //Заполняем список гео зон
-                cZone = driver.FindElements(By.XPath("//table[@ class='table table-striped data-table']/tbody//td[3]"));//Помещаем в массив элементы содержащие наименования стран
-                //table[@ class='table table-striped data-table']/tbody//td[prceding-sibling::td[contains(@name, '[zone_code]')]]
-                ////table[@ class='table table-striped data-table']//input[contains(@name, '[zone_code]')]
+                cZone = driver.FindElements(By.XPath("//table[@ class='table table-striped data-table']/tbody//td[3]"));//Помещаем в массив элементы содержащие наименования стран            
                 int countZon = cZone.Count;
                 for (int j = 0; j < countZon; j++)
                 {
