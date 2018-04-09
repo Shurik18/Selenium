@@ -1,0 +1,57 @@
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.Firefox;
+
+namespace csharpproject
+{
+    [TestFixture]
+    public class UnitTest10
+    {
+        private IWebDriver driver;
+        private WebDriverWait wait;
+        private string nameProdmain;
+        private string regular_price_main;
+        private string color_regular_price_main;
+        private string decor_regular_price_main;
+        private string size_regular_price_main;
+        private string campaign_price_main;
+        private string color_campaign_price_main;
+        private string weight_cmpaign_price_main;
+        private string size_cmpaign_price_main;
+        private IWebElement divProduct;
+
+        [SetUp]
+        public void TestMethod1()
+        {
+            driver = new FirefoxDriver();
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+        }
+        [Test]
+        public void product()
+        {
+            driver.Url = "http://localhost/litecart/en/";
+
+            divProduct = driver.FindElement(By.XPath("//div[@class='products row half-gutter text-center']/div[@class='col-xs-6 col-sm-4 col-md-3']"));
+            nameProdmain = divProduct.FindElement(By.XPath(".//div[@class='name']")).GetAttribute("textContent");
+            regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetAttribute("textContent");
+            color_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("color");
+            decor_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("text-decoration");
+            size_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("font-size");
+            campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetAttribute("textContent");
+            color_campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("color");
+            weight_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-weight");
+            size_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-size");
+
+
+        }
+        [TearDown]
+        public void Stop()
+        {
+            driver.Quit();
+            driver = null;
+        }
+    }
+}
