@@ -10,6 +10,7 @@ namespace csharpproject
     [TestFixture]
     public class UnitTest10
     {
+       // private FirefoxOptions options;   
         private IWebDriver driver;
         private WebDriverWait wait;
         private string nameProdmain;
@@ -26,6 +27,10 @@ namespace csharpproject
         [SetUp]
         public void TestMethod1()
         {
+          /*  options = new FirefoxOptions();
+             options.UseLegacyImplementation = false;
+             options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
+             driver = new FirefoxDriver(options); */
             driver = new FirefoxDriver();
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
         }
@@ -34,7 +39,7 @@ namespace csharpproject
         {
             driver.Url = "http://localhost/litecart/en/";
 
-            divProduct = driver.FindElement(By.XPath("//div[@class='products row half-gutter text-center']/div[@class='col-xs-6 col-sm-4 col-md-3']"));
+            divProduct = driver.FindElement(By.XPath("//div[@id='box-campaign-products']//div[@class='col-xs-6 col-sm-4 col-md-3']"));
             nameProdmain = divProduct.FindElement(By.XPath(".//div[@class='name']")).GetAttribute("textContent");
             regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetAttribute("textContent");
             color_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("color");
