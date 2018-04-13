@@ -3,10 +3,20 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
-using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Chrome;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace csharpproject
 {
+    public class PriceExcection : ApplicationException
+    {
+        public PriceExcection() { }
+        public PriceExcection(string message) : base(message) { }
+        public PriceExcection(string messga, PriceExcection inner) : base(messga, inner) { }
+        protected PriceExcection(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+    }
     [TestFixture]
     public class UnitTest10
     {
@@ -16,6 +26,7 @@ namespace csharpproject
         private string nameProdmain;
         private string regular_price_main;
         private string color_regular_price_main;
+        private string comp_color_regular = "rgba(51, 51, 51, 1)";
         private string decor_regular_price_main;
         private string size_regular_price_main;
         private string campaign_price_main;
@@ -31,7 +42,7 @@ namespace csharpproject
              options.UseLegacyImplementation = false;
              options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
              driver = new FirefoxDriver(options); */
-            driver = new FirefoxDriver();
+            driver = new ChromeDriver();
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
         }
         [Test]
@@ -43,14 +54,17 @@ namespace csharpproject
             nameProdmain = divProduct.FindElement(By.XPath(".//div[@class='name']")).GetAttribute("textContent");
             regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetAttribute("textContent");
             color_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("color");
+            if (comp_color_regular != color_regular_price_main)
+                throw new PriceExcection("Not the correct color of the regular price on the main page");
             decor_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("text-decoration");
+            if (!decor_regular_price_main.Contains("line-through"))
+                throw new PriceExcection("The price is not crossed out");
             size_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("font-size");
+            int value_size_regular_price = Convert.ToInt32(Regex.Replace(size_regular_price_main, @"[^\d]+", ""));
             campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetAttribute("textContent");
             color_campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("color");
             weight_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-weight");
             size_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-size");
-
-
         }
         [TearDown]
         public void Stop()
