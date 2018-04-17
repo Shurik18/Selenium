@@ -65,6 +65,9 @@ namespace csharpproject
             color_campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("color");
             weight_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-weight");
             size_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-size");
+            int value_size_cmpaign_price = Convert.ToInt32(Regex.Replace(size_cmpaign_price_main, @"[^\d]+", ""));
+            if (value_size_cmpaign_price < value_size_regular_price)
+                throw new PriceExcection("Promotional price is less than the regular price");
         }
         [TearDown]
         public void Stop()
