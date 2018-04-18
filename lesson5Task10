@@ -60,12 +60,14 @@ namespace csharpproject
             if (!decor_regular_price_main.Contains("line-through"))
                 throw new PriceExcection("The price is not crossed out");
             size_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("font-size");
-            int value_size_regular_price = Convert.ToInt32(Regex.Replace(size_regular_price_main, @"[^\d]+", ""));
+            int value_size_regular_price = Convert.ToInt32(size_regular_price_main.Substring(0, 2));
+            //int value_size_regular_price = Convert.ToInt32(Regex.Replace(size_regular_price_main, @"[^\d]+", ""));
             campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetAttribute("textContent");
             color_campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("color");
             weight_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-weight");
             size_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-size");
-            int value_size_cmpaign_price = Convert.ToInt32(Regex.Replace(size_cmpaign_price_main, @"[^\d]+", ""));
+            int value_size_cmpaign_price = Convert.ToInt32(size_cmpaign_price_main.Substring(0, 2));
+            //int value_size_cmpaign_price = Convert.ToInt32(Regex.Replace(size_cmpaign_price_main, @"[^\d]+", ""));
             if (value_size_cmpaign_price < value_size_regular_price)
                 throw new PriceExcection("Promotional price is less than the regular price");
         }
