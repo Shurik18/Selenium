@@ -6,6 +6,7 @@ using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Chrome;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace csharpproject
 {
@@ -24,16 +25,27 @@ namespace csharpproject
         private IWebDriver driver;
         private WebDriverWait wait;
         private string nameProdmain;
+        private string nameProdfr;
         private string regular_price_main;
+        private string regular_price_fr;
         private string color_regular_price_main;
+        private string color_regular_price_fr;
         private string comp_color_regular = "rgba(51, 51, 51, 1)";
         private string decor_regular_price_main;
+        private string decor_regular_price_fr;
         private string size_regular_price_main;
+        private string size_regular_price_fr;
         private string campaign_price_main;
+        private string campaign_price_fr;
         private string color_campaign_price_main;
-        private string weight_cmpaign_price_main;
+        private string color_campaign_price_fr;
+        private string comp_color_campaign = "rgba(204, 0, 0, 1)";
+        private int weight_cmpaign_price_main;
+        private int weight_cmpaign_price_fr;
         private string size_cmpaign_price_main;
         private IWebElement divProduct;
+        //List<string> main_property;
+        //string [] fr_property;
 
         [SetUp]
         public void TestMethod1()
@@ -44,6 +56,8 @@ namespace csharpproject
              driver = new FirefoxDriver(options); */
             driver = new ChromeDriver();
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            
+           
         }
         [Test]
         public void product()
@@ -51,24 +65,77 @@ namespace csharpproject
             driver.Url = "http://localhost/litecart/en/";
 
             divProduct = driver.FindElement(By.XPath("//div[@id='box-campaign-products']//div[@class='col-xs-6 col-sm-4 col-md-3']"));
-            nameProdmain = divProduct.FindElement(By.XPath(".//div[@class='name']")).GetAttribute("textContent");
-            regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetAttribute("textContent");
-            color_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("color");
+            nameProdmain = divProduct.FindElement(By.XPath(".//div[@class='name']")).GetAttribute("textContent"); // Текст названия товара
+           // main_property[0] = nameProdmain;
+            regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetAttribute("textContent"); // Регулярная цена
+           // main_property[1] = regular_price_main;
+            color_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("color");//Цвет регулярной цены
+            //Сравнение цвета регулярной цены с шаблоном
             if (comp_color_regular != color_regular_price_main)
                 throw new PriceExcection("Not the correct color of the regular price on the main page");
-            decor_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("text-decoration");
+            //Зачеркнута ли регулярная цена
+            decor_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("text-decoration");//
             if (!decor_regular_price_main.Contains("line-through"))
                 throw new PriceExcection("The price is not crossed out");
+            //получаю размер регулярной цены
             size_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("font-size");
             int value_size_regular_price = Convert.ToInt32(size_regular_price_main.Substring(0, 2));
             //int value_size_regular_price = Convert.ToInt32(Regex.Replace(size_regular_price_main, @"[^\d]+", ""));
-            campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetAttribute("textContent");
-            color_campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("color");
-            weight_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-weight");
+
+            campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetAttribute("textContent");// Акционная цена
+            //main_property[2] = campaign_price_main;
+            color_campaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("color");// Цвет Акционной цены
+            //сравниваю цвет акционной цены с шаблоном
+            if (color_campaign_price_main != comp_color_campaign)
+                throw new PriceExcection("Not the correct color of the campaign price on the main page");
+            //проверяю жирная ли цена
+            weight_cmpaign_price_main = Convert.ToInt32(divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-weight"));
+            if (weight_cmpaign_price_main != 700)
+                throw new PriceExcection("The price is not bold");
+            //Размер акционной цены
             size_cmpaign_price_main = divProduct.FindElement(By.XPath(".//strong[@class='campaign-price']")).GetCssValue("font-size");
             int value_size_cmpaign_price = Convert.ToInt32(size_cmpaign_price_main.Substring(0, 2));
             //int value_size_cmpaign_price = Convert.ToInt32(Regex.Replace(size_cmpaign_price_main, @"[^\d]+", ""));
-            if (value_size_cmpaign_price < value_size_regular_price)
+            //Сравниваю размеры акционной и регулярной цены
+            if (value_size_cmpaign_price <= value_size_regular_price)
+                throw new PriceExcection("Promotional price is less than the regular price");
+            /////ПРОВЕРКА АТРИБУТОВ СТРАНИЦЫ ТОВАРА\\\\\\
+            //Сравниваю текст названия товара на главной и на страницце товара 
+            driver.FindElement(By.XPath("//div[@id='box-campaign-products']//div[@class='col-xs-6 col-sm-4 col-md-3']")).Click();
+            nameProdfr = driver.FindElement(By.XPath("//div[@id='box-product']//h1[@class='title']")).GetAttribute("textContent");
+            if (nameProdmain != nameProdfr)
+                throw new PriceExcection("Alarm! The product name on the page is different from the title on the product page!");
+            //Сравниваю регулярную цену
+            regular_price_fr = driver.FindElement(By.XPath("//div[@id='box-product']//del[@class='regular-price']")).GetAttribute("textContent");
+            if (regular_price_fr != regular_price_main)
+                throw new PriceExcection("Alarm! The product price on the page is different from the title on the product page!");
+            //Сравниваю акционную цену
+            campaign_price_fr = driver.FindElement(By.XPath("//div[@id='box-product']//strong[@class='campaign-price']")).GetAttribute("textContent");
+            if (campaign_price_fr != campaign_price_main)
+                throw new PriceExcection("Alarm! The product price on the page is different from the title on the product page!");
+            //Проверяю зачеркнута ли регулярная цена
+            decor_regular_price_fr = divProduct.FindElement(By.XPath("//div[@id='box-product']//del[@class='regular-price']")).GetCssValue("text-decoration");
+            if (!decor_regular_price_fr.Contains("line-through"))
+                throw new PriceExcection("The price is not crossed out");
+            //получаю ее размер
+            size_regular_price_fr = driver.FindElement(By.XPath("//div[@id='box-product']//del[@class='regular-price']")).GetCssValue("font-size");
+            int value_size_regular_price_fr = Convert.ToInt32(size_regular_price_fr.Substring(0, 2));
+            //проверяю цвет регулярной цены
+            color_regular_price_fr = driver.FindElement(By.XPath("//div[@id='box-product']//del[@class='regular-price']")).GetCssValue("color");
+            if (color_regular_price_fr != comp_color_regular)
+                throw new PriceExcection("Not the correct color of the regular price on the main page");
+            //Проверяю цвет акционной цены
+           color_campaign_price_fr = driver.FindElement(By.XPath("//div[@id='box-product']//strong[@class='campaign-price']")).GetCssValue("color");
+            if (color_campaign_price_fr != comp_color_campaign)
+                throw new PriceExcection("Not the correct color of the campaign price on the main page");
+            //проверяю жирная ли цена
+            weight_cmpaign_price_fr = Convert.ToInt32(driver.FindElement(By.XPath("//div[@id='box-product']//strong[@class='campaign-price']")).GetCssValue("font-weight"));
+            if (weight_cmpaign_price_fr != 700)
+                throw new PriceExcection("The price is not bold");
+            //Получаю размер регулярной цены
+            int value_campaign_price_fr = Convert.ToInt32(campaign_price_fr.Substring(0, 2));
+            //Сравниваю размеры акционной и регулярной цены
+            if (value_campaign_price_fr <= value_size_regular_price_fr)
                 throw new PriceExcection("Promotional price is less than the regular price");
         }
         [TearDown]
