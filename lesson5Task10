@@ -21,11 +21,12 @@ namespace csharpproject
     [TestFixture]
     public class UnitTest10
     {
-       // private FirefoxOptions options;   
+        // private FirefoxOptions options;   
         private IWebDriver driver;
         private WebDriverWait wait;
         private string nameProdmain;
         private string nameProdfr;
+        private IWebElement divnameProdfr;
         private string regular_price_main;
         private string regular_price_fr;
         private string color_regular_price_main;
@@ -43,6 +44,7 @@ namespace csharpproject
         private int weight_cmpaign_price_main;
         private int weight_cmpaign_price_fr;
         private string size_cmpaign_price_main;
+        private string size_cmpaign_price_fr;
         private IWebElement divProduct;
         //List<string> main_property;
         //string [] fr_property;
@@ -50,14 +52,14 @@ namespace csharpproject
         [SetUp]
         public void TestMethod1()
         {
-          /*  options = new FirefoxOptions();
-             options.UseLegacyImplementation = false;
-             options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
-             driver = new FirefoxDriver(options); */
+            /*  options = new FirefoxOptions();
+               options.UseLegacyImplementation = false;
+               options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
+               driver = new FirefoxDriver(options); */
             driver = new ChromeDriver();
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            
-           
+
+
         }
         [Test]
         public void product()
@@ -66,9 +68,9 @@ namespace csharpproject
 
             divProduct = driver.FindElement(By.XPath("//div[@id='box-campaign-products']//div[@class='col-xs-6 col-sm-4 col-md-3']"));
             nameProdmain = divProduct.FindElement(By.XPath(".//div[@class='name']")).GetAttribute("textContent"); // Текст названия товара
-           // main_property[0] = nameProdmain;
+                                                                                                                  // main_property[0] = nameProdmain;
             regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetAttribute("textContent"); // Регулярная цена
-           // main_property[1] = regular_price_main;
+                                                                                                                               // main_property[1] = regular_price_main;
             color_regular_price_main = divProduct.FindElement(By.XPath(".//s[@class='regular-price']")).GetCssValue("color");//Цвет регулярной цены
             //Сравнение цвета регулярной цены с шаблоном
             if (comp_color_regular != color_regular_price_main)
@@ -102,7 +104,9 @@ namespace csharpproject
             /////ПРОВЕРКА АТРИБУТОВ СТРАНИЦЫ ТОВАРА\\\\\\
             //Сравниваю текст названия товара на главной и на страницце товара 
             driver.FindElement(By.XPath("//div[@id='box-campaign-products']//div[@class='col-xs-6 col-sm-4 col-md-3']")).Click();
-            nameProdfr = driver.FindElement(By.XPath("//div[@id='box-product']//h1[@class='title']")).GetAttribute("textContent");
+            divnameProdfr = wait.Until(ExpectedConditions.ElementExists(By.XPath("//div[@id='box-product']//h1[@class='title']")));
+            nameProdfr = divnameProdfr.GetAttribute("textContent");
+            // nameProdfr = driver.FindElement(By.XPath("//div[@id='box-product']//h1[@class='title']")).GetAttribute("textContent");
             if (nameProdmain != nameProdfr)
                 throw new PriceExcection("Alarm! The product name on the page is different from the title on the product page!");
             //Сравниваю регулярную цену
@@ -125,7 +129,7 @@ namespace csharpproject
             if (color_regular_price_fr != comp_color_regular)
                 throw new PriceExcection("Not the correct color of the regular price on the main page");
             //Проверяю цвет акционной цены
-           color_campaign_price_fr = driver.FindElement(By.XPath("//div[@id='box-product']//strong[@class='campaign-price']")).GetCssValue("color");
+            color_campaign_price_fr = driver.FindElement(By.XPath("//div[@id='box-product']//strong[@class='campaign-price']")).GetCssValue("color");
             if (color_campaign_price_fr != comp_color_campaign)
                 throw new PriceExcection("Not the correct color of the campaign price on the main page");
             //проверяю жирная ли цена
@@ -133,7 +137,8 @@ namespace csharpproject
             if (weight_cmpaign_price_fr != 700)
                 throw new PriceExcection("The price is not bold");
             //Получаю размер регулярной цены
-            int value_campaign_price_fr = Convert.ToInt32(campaign_price_fr.Substring(0, 2));
+            size_cmpaign_price_fr = driver.FindElement(By.XPath("//div[@id='box-product']//strong[@class='campaign-price']")).GetCssValue("font-size");
+            int value_campaign_price_fr = Convert.ToInt32(size_cmpaign_price_fr.Substring(0, 2));
             //Сравниваю размеры акционной и регулярной цены
             if (value_campaign_price_fr <= value_size_regular_price_fr)
                 throw new PriceExcection("Promotional price is less than the regular price");
